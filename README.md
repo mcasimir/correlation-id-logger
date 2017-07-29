@@ -7,7 +7,7 @@ Bundles connect `middlewares` and `errorHandler` to log express/connect requests
 ## Install
 
 ```
-npm install --save log-id
+npm install --save correlation-id-logger
 ```
 
 ## Usage
