@@ -1,4 +1,4 @@
-# log-id
+# correlation-id-logger
 
 Wrapper around `pino` logger that logs with `correlation-id`.
 
