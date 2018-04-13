@@ -7,7 +7,7 @@ class Logger {
       level = 'info',
       format = 'json',
       silent = false,
-      transport = process.stdout,
+      transport = stdoutStream(format),
       correlator,
       serializers,
       correlationIdProperty = 'correlation-id'
@@ -30,9 +30,14 @@ class Logger {
 
     const defaultPinoOptions = {
       level,
+      timestamp: pino.stdTimeFunctions.slowTime,
       pretty,
       serializers: Object.assign(defaultSerializers, serializers)
     };
+
+    if (!pretty) {
+      defaultPinoOptions.messageKey = 'message';
+    }
 
     const pinoOptions = Object.assign(
       defaultPinoOptions,
@@ -61,7 +66,7 @@ class Logger {
     message = function(req) {
       return `${req.method} ${req.path}`;
     }
-  }) {
+  } = {}) {
     const logger = this;
 
     return function logidConnectMiddleware(req, res, next) {
@@ -76,11 +81,11 @@ class Logger {
     message = function(req) {
       return `ERROR ${req.method} ${req.path}`;
     }
-  }) {
+  } = {}) {
     const logger = this;
 
     return function logidConnectErrorHandler(err, req, res, next) {
-      logger[level](message(req), {err});
+      logger[level](message(req), {req, err});
 
       next(err);
     };
@@ -88,3 +93,23 @@ class Logger {
 }
 
 module.exports = Logger;
+
+function stringifyVersion(chunk) {
+  return chunk.replace(
+      /("level":\s*)(\d+)/,
+      (match, keyString, levelString) =>
+          `${keyString}"${pino.levels.labels[parseInt(levelString, 10)]}"`,
+  );
+}
+
+function stdoutStream(format) {
+  if (format === 'pretty') {
+    return process.stdout;
+  }
+
+  return {
+    write(chunk) {
+      process.stdout.write(stringifyVersion(chunk));
+    }
+  };
+}
