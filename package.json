@@ -1,6 +1,6 @@
 {
   "name": "correlation-id-logger",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "Wrapper around pino logger that logs with correlation-id",
   "main": "index.js",
   "scripts": {
